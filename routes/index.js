@@ -18,13 +18,9 @@ const itemSchema = Joi.object({
   market_price: Joi.number().optional(),
 });
 
-// testing routes
+// testing
 router.get('/', function(req, res) {
   res.send("Hello");
-});
-
-router.get('/hello/:name', function(req, res) {
-  res.send("Hello " + req.params.name);
 });
 
 // fetch all furniture
@@ -64,26 +60,19 @@ router.get("/api/items/designer/:designer", async (req, res) => {
   }
 });
 
-// fetch all furniture by a specific brand
-
 // post an item in a specific category
 router.post("/api/items/:category", async (req, res) => {
   try {
     const category = req.params.category;
-
     const { error, value } = itemSchema.validate(req.body);
     if (error) {
       return res.status(400).send({ error: error.details[0].message });
     }
-
     const itemData = { ...value, category };
-
     const result = await sendNewItem(itemData);
-
     if (!result.success) {
       return res.status(400).send({ error: result.message });
     }
-
     res.status(201).send({
       message: "Item successfully added",
       insertedId: result.insertedId,
@@ -100,17 +89,14 @@ router.put("/api/items/:id", async (req, res) => {
     const { id } = req.params;
     // not sending id and category in the body
     const { _id, category, ...updatedData } = req.body;
-
     const { error } = itemSchema.validate(updatedData);
     if (error) {
       return res.status(400).send({ error: error.details[0].message });
     }
-
     const result = await updateItem(id, updatedData);
     if (!result.success) {
       return res.status(404).send({ error: result.message });
     }
-
     res.status(200).send({ message: result.message });
   } catch (error) {
     console.error("Error in PUT /api/items/:id:", error);
@@ -122,13 +108,10 @@ router.put("/api/items/:id", async (req, res) => {
 router.delete("/api/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const result = await deleteItem(id);
-
     if (!result.success) {
       return res.status(404).send({ error: result.message });
     }
-
     res.status(200).send({ message: result.message });
   } catch (error) {
     if (error.message.includes("Invalid item")) {
@@ -143,13 +126,10 @@ router.delete("/api/items/:id", async (req, res) => {
 router.delete("/api/items/design/:design_name", async (req, res) => {
   try {
     const { design_name } = req.params;
-  
     const result = await deleteItemByDesignName(design_name);
-
     if (!result.success) {
       return res.status(404).send({ error: result.message });
     }
-
     res.status(200).send({ message: result.message });
   } catch (error) {
     console.error("Error in DELETE /api/items/design/:design_name:", error);
@@ -157,9 +137,4 @@ router.delete("/api/items/design/:design_name", async (req, res) => {
   }
 });
 
-
 module.exports = router;
-
-// router.listen(3000, function() {
-//   console.log('Express app listening on port 3000!');
-// });
